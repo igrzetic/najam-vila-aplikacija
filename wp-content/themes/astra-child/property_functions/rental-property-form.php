@@ -11,71 +11,11 @@
         unset($_SESSION['user_message']);
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_property_submit'])) {
-        $propertyName = $_POST['property_name'] ?? '';
-        $propertyType = $_POST['property_type'] ?? '';
-        $country = $_POST['country'] ?? '';
-        $city = $_POST['city'] ?? '';
-        $street = $_POST['street'] ?? '';
-        $houseNumber = $_POST['house_number'] ?? '';
-        $capacity = isset($_POST['capacity']) ? (int) $_POST['capacity'] : 0;
-        $ownerId = isset($_POST['owner_id']) ? (int) $_POST['owner_id'] : 0;
-
-        $conn = new mysqli("localhost", "root", "", "najam_vila_db");
-
-        if ($conn->connect_error) {
-            $message = "<script>alert('Error connecting to database!');</script>";
-        } else {
-            $stmt = $conn->prepare("INSERT INTO rental_objects (property_name, property_type, country, city, street, house_number, capacity, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            if ($stmt) {
-                $stmt->bind_param("ssssssii", $propertyName, $propertyType, $country, $city, $street, $houseNumber, $capacity, $ownerId);
-                if ($stmt->execute()) {
-                    // Flash message + server-side redirect to admin dashboard -> #properties
-                    $_SESSION['user_message'] = 'Property successfully added.';
-                    $redirect_url = function_exists('home_url')
-                        ? home_url('/index.php/admin-dashboard/#properties')
-                        : 'http://localhost/najam_vila_aplikacija/index.php/admin-dashboard/#properties';
-                    if (!headers_sent()) {
-                        if (function_exists('wp_safe_redirect')) {
-                            wp_safe_redirect($redirect_url);
-                        } else {
-                            header('Location: ' . $redirect_url);
-                        }
-                        exit;
-                    } else {
-                        echo '<script>window.location.href = "' . $redirect_url . '";</script>';
-                        exit;
-                    }
-                } else {
-                    // On failure, set flash and redirect back to Properties tab
-                    $_SESSION['user_message'] = 'Error adding property: ' . $stmt->error;
-                    $redirect_url = function_exists('home_url')
-                        ? home_url('/index.php/admin-dashboard/#properties')
-                        : 'http://localhost/najam_vila_aplikacija/index.php/admin-dashboard/#properties';
-                    if (!headers_sent()) {
-                        if (function_exists('wp_safe_redirect')) {
-                            wp_safe_redirect($redirect_url);
-                        } else {
-                            header('Location: ' . $redirect_url);
-                        }
-                        exit;
-                    } else {
-                        echo '<script>window.location.href = "' . $redirect_url . '";</script>';
-                        exit;
-                    }
-                }
-                $stmt->close();
-            } else {
-                $message = "<script>alert('Error preparing query.');</script>";
-            }
-            $conn->close();
-        }
-    }
-    // Only echo the message if we did not just redirect.
+    // Only echo the flash message if set
     echo $message;
 ?>
 
-    <form id="property_form" method="POST">
+    <form id="property_form" method="POST" action="<?php echo esc_url( get_stylesheet_directory_uri() . '/property_functions/handle-add-property.php' ); ?>">
         <h2>Add Property</h2>
         <label>Property name:</label>
         <input type="text" name="property_name" required>
@@ -129,17 +69,6 @@
     </form>
 
 <script>
-// document.querySelector('#property_form').addEventListener('submit', function(e) {
-//     e.preventDefault(); // spriječi automatski reload
-//
-//     const formData = new FormData(this);
-//     console.log("✅ Spriječen reload. Podaci za slanje:");
-//
-//     formData.forEach((value, key) => {
-//         console.log(`${key} = ${value} (tip: ${typeof value})`);
-//     });
-// });
-
     document.addEventListener('DOMContentLoaded', function() {
         fetch('https://restcountries.com/v3.1/all?fields=name')
             .then(response => response.json())

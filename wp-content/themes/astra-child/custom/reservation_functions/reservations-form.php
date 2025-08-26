@@ -1,62 +1,17 @@
 <?php
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
     ob_start();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reservation_submit'])) {
-        $firstName = $_POST['guest_first_name'] ?? '';
-        $lastName = $_POST['guest_last_name'] ?? '';
-        
-        $arrivalDate = $_POST['arrival_date'] ?? '';
-        $departureDate = $_POST['departure_date'] ?? '';
-        $guestName = trim($firstName . ' ' . $lastName);
-        $adults = isset($_POST['adults']) ? (int) $_POST['adults'] : 0;
-        $children = isset($_POST['children']) ? (int) $_POST['children'] : 0;
-        $infants = isset($_POST['infants']) ? (int) $_POST['infants'] : 0;
-        $pets = isset($_POST['pets']) ? (int) $_POST['pets'] : 0;
-        $agency = $_POST['agency'] ?? '';
-        $specialRequests = $_POST['special_requests'] ?? '';
-        $earnings = isset($_POST['earnings']) ? (float) $_POST['earnings'] : 0;
-        $propertyId = isset($_POST['property_id']) ? (int) $_POST['property_id'] : 0;
-
-        // Enable detailed mysqli errors for debugging
-        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-        try {
-            $conn = new mysqli("localhost", "root", "", "najam_vila_db");
-            $conn->set_charset('utf8mb4');
-
-            $stmt = $conn->prepare("INSERT INTO reservations (arrival_date, departure_date, guest_name, adults, children, infants, pets, agency, special_requests, earnings, property_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            // Types: s s s i i i i s s d i (arrival, departure, guest, adults, children, infants, pets, agency, requests, earnings, property_id)
-            $stmt->bind_param("sssiiiissdi", $arrivalDate, $departureDate, $guestName, $adults, $children, $infants, $pets, $agency, $specialRequests, $earnings, $propertyId);
-            $stmt->execute();
-
-            // Success: redirect to admin dashboard -> #reservations
-            if (session_status() !== PHP_SESSION_ACTIVE) { @session_start(); }
-            $_SESSION['user_message'] = 'Reservation added successfully.';
-            $redirect_url = function_exists('home_url')
-                ? home_url('/index.php/admin-dashboard/#reservations')
-                : 'http://localhost/najam_vila_aplikacija/index.php/admin-dashboard/#reservations';
-            $stmt->close();
-            $conn->close();
-            if (!headers_sent()) {
-                if (function_exists('wp_safe_redirect')) {
-                    wp_safe_redirect($redirect_url);
-                } else {
-                    header('Location: ' . $redirect_url);
-                }
-                exit;
-            } else {
-                echo '<script>window.location.href = "' . $redirect_url . '";</script>';
-                exit;
-            }
-        } catch (Throwable $e) {
-            // Surface detailed error to the UI and log it
-            error_log("Reservation insert failed: " . $e->getMessage());
-            $safeMsg = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
-            echo '<script>alert("Error adding reservation: ' . $safeMsg . '");</script>';
-        }
+    // Show flash message if any (set by handler)
+    $message = "";
+    if (isset($_SESSION['user_message'])) {
+        $message = "<script>alert('" . $_SESSION['user_message'] ."');</script>";
+        unset($_SESSION['user_message']);
     }
+    echo $message;
 ?>
 
-<form id="reservations_form" method="POST">
+<form id="reservations_form" method="POST" action="<?php echo esc_url( get_stylesheet_directory_uri() . '/custom/reservation_functions/handle-add-reservation.php' ); ?>">
     <h2>Add reservation</h2>
 
     <div class="form-field">

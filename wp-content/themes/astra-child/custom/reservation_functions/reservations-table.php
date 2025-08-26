@@ -69,8 +69,11 @@ if ($result && $result->num_rows > 0) {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Brisanje rezervacije
-    document.querySelectorAll('.delete-btn').forEach(function (button) {
-        button.addEventListener('click', function () {
+    const reservationsSection = document.getElementById('reservations');
+    if (!reservationsSection) return;
+    reservationsSection.querySelectorAll('.delete-btn').forEach(function (button) {
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
             const reservationId = this.getAttribute('data-reservation-id');
             
             if (confirm('Are you sure you want to delete this reservation?')) {
@@ -81,18 +84,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(res => res.text())
                 .then(() => {
-                    window.location.href = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#reservations') ); ?>";
+                    var targetUrl = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#reservations') ); ?>";
+                    if (window.location.hash !== '#reservations') {
+                        if (window.history && typeof window.history.replaceState === 'function') {
+                            window.history.replaceState(null, '', targetUrl);
+                        } else {
+                            window.location.hash = '#reservations';
+                        }
+                    }
+                    window.location.reload();
                 });
             }
         });
     });
 
     // Popunjavanje forme klikom na red
-    document.querySelectorAll('.reservation-row').forEach(function (row) {
+    reservationsSection.querySelectorAll('.reservation-row').forEach(function (row) {
         row.addEventListener('click', function () {
-            document.querySelectorAll('.reservation-row').forEach(r => r.classList.remove('selected'));
+            reservationsSection.querySelectorAll('.reservation-row').forEach(r => r.classList.remove('selected'));
             this.classList.add('selected');
-            console.log('Odabrani redak: ', this.getAttribute('data-reservation-id'));
+            console.log('Selected row: ', this.getAttribute('data-reservation-id'));
 
             const reservationId = this.getAttribute('data-reservation-id');
             const arrivalDate = this.getAttribute('data-arrival-date');
@@ -205,7 +216,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     .then(res => res.text())
                     .then(response => {
                         alert("Reservation successfully updated.");
-                        window.location.href = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#reservations') ); ?>";
+                        var targetUrl = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#reservations') ); ?>";
+                        if (window.location.hash !== '#reservations') {
+                            if (window.history && typeof window.history.replaceState === 'function') {
+                                window.history.replaceState(null, '', targetUrl);
+                            } else {
+                                window.location.hash = '#reservations';
+                            }
+                        }
+                        window.location.reload();
                     })
                     .catch(err => {
                         console.error("Error updating reservation:", err);

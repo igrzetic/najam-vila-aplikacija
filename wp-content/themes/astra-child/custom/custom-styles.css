@@ -75,7 +75,6 @@ button,
 input[type="submit"],
 input[type="button"],
 input[type="reset"] {
-  background: linear-gradient(45deg, var(--primary), var(--accent));
   color: var(--btn-text);
   border: none;
   border-radius: var(--radius-pill);
@@ -553,7 +552,7 @@ body.custom-admin .glass-login .glass-form {
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-  padding: 50px 35px;
+  padding: 50px 35px 35px 35px;
   overflow: hidden;         /* clip children within rounded corners */
 }
 body.custom-admin .glass-login .glass-form * {
@@ -585,6 +584,39 @@ body.custom-admin .glass-login .glass-form input {
   margin-top: 8px;
   font-size: 14px;
   font-weight: 300;
+}
+
+/* Make textarea look like inputs in glass form */
+body.custom-admin .glass-login .glass-form textarea {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  border-radius: 3px;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  border: none;
+  resize: vertical;
+}
+/* Fallback: ensure reservations form textarea matches inputs even outside glass-form wrapper */
+body.custom-admin #reservations_form textarea {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  border-radius: 3px;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  border: none;
+  resize: vertical;
 }
 /* Make select look like inputs in glass form */
 body.custom-admin .glass-login .glass-form select {
@@ -620,13 +652,16 @@ body.custom-admin .glass-login .glass-form ::placeholder {
 }
 body.custom-admin .glass-login .glass-form button {
   margin-top: 50px;
-  width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;
   background-color: #ffffff;
   color: #080710;
-  padding: 15px 0;
-  font-size: 18px;
+  padding: 12px 0;
+  font-size: 16px;
   font-weight: 600;
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 
@@ -667,6 +702,38 @@ body.custom-admin .glass-login .users-layout {
   position: relative; /* allow absolute positioning of hidden table */
   width: 100%;
 }
+
+body.custom-admin #reservations .users-layout {
+  flex-direction: column;
+  align-items: center;
+}
+
+body.custom-admin #reservations_form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 24px;
+  row-gap: 14px;
+  align-items: start;
+}
+
+/* Make the full-width field (e.g., Special requests) span both columns */
+body.custom-admin #reservations_form .form-field.full {
+  grid-column: 1 / -1;
+}
+
+/* Actions in a single row, aligned to the right, spanning both columns */
+body.custom-admin #reservations_form .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 30px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+body.custom-admin #reservations .glass-form {
+  width: 50%;
+}
+
 /* Override absolute centering for glass-form inside users screen */
 body.custom-admin .glass-login.users-screen .glass-form {
   position: static;
@@ -814,12 +881,16 @@ body.custom-admin .glass-login .users-table tr.user-row:hover {
 body.custom-admin .glass-login.users-screen.show-table .glass-form {
   transform: translateX(-12px);
 }
+/* Do not nudge the form on the reservations page */
+body.custom-admin #reservations.glass-login.users-screen.show-table .glass-form {
+  transform: none;
+}
 body.custom-admin .glass-login.users-screen.show-table .users-table {
   opacity: 1;
   transform: translateX(0);
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0s;
+  transition: opacity 0.3s ease-in, transform 0.3s ease-out, visibility 0s;
 }
 
 /* Responsive: stack on small screens */
@@ -851,3 +922,23 @@ body.custom-admin .glass-login .social div:hover {
 }
 body.custom-admin .glass-login .social .fb { margin-left: 25px; }
 body.custom-admin .glass-login .social i { margin-right: 4px; }
+
+/* Make heading span both columns */
+body.custom-admin #reservations_form h2 {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+/* Responsive: stack to single column on small screens */
+@media (max-width: 768px) {
+  body.custom-admin #reservations_form {
+    grid-template-columns: 1fr;
+  }
+  body.custom-admin #reservations_form .form-actions {
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+  body.custom-admin #reservations_form .form-actions > * {
+    flex: 1 1 auto;
+  }
+}

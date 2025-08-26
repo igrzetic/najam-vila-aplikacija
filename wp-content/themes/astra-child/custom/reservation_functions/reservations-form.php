@@ -58,64 +58,91 @@
 
 <form id="reservations_form" method="POST">
     <h2>Add reservation</h2>
-    <label>Arrival date:</label>
-    <input type="date" name="arrival_date" required>
 
-    <label>Departure date:</label>
-    <input type="date" name="departure_date" required>
+    <div class="form-field">
+        <label>Arrival date:</label>
+        <input type="date" name="arrival_date" required>
+    </div>
 
-    <label>Guest first name:</label>
-    <input type="text" name="guest_first_name" required>
+    <div class="form-field">
+        <label>Departure date:</label>
+        <input type="date" name="departure_date" required>
+    </div>
 
-    <label>Guest last name:</label>
-    <input type="text" name="guest_last_name" required>
+    <div class="form-field">
+        <label>Guest first name:</label>
+        <input type="text" name="guest_first_name" required>
+    </div>
 
-    <label>Adults number:</label>
-    <input type="number" name="adults" min="0" value="0" required>
+    <div class="form-field">
+        <label>Guest last name:</label>
+        <input type="text" name="guest_last_name" required>
+    </div>
 
-    <label>Children number:</label>
-    <input type="number" name="children" min="0" value="0" required>
+    <div class="form-field">
+        <label>Adults number:</label>
+        <input type="number" name="adults" min="0" value="0" required>
+    </div>
 
-    <label>Infants number:</label>
-    <input type="number" name="infants" min="0" value="0" required>
+    <div class="form-field">
+        <label>Children number:</label>
+        <input type="number" name="children" min="0" value="0" required>
+    </div>
 
-    <label>Pets number:</label>
-    <input type="number" name="pets" min="0" value="0" required>
+    <div class="form-field">
+        <label>Infants number:</label>
+        <input type="number" name="infants" min="0" value="0" required>
+    </div>
 
-    <label>Agency name:</label>
-    <input type="text" name="agency" required>
+    <div class="form-field">
+        <label>Pets number:</label>
+        <input type="number" name="pets" min="0" value="0" required>
+    </div>
 
-    <label>Special requests:</label>
-    <textarea name="special_requests" rows="4" cols="50"></textarea>
+    <div class="form-field">
+        <label>Agency name:</label>
+        <input type="text" name="agency" required>
+    </div>
 
-    <label>Incoms:</label>
-    <input type="number" name="earnings" step="0.01" min="0" value="0" required>
+    <div class="form-field">
+        <label>Incoms:</label>
+        <input type="number" name="earnings" step="0.01" min="0" value="0" required>
+    </div>
 
-    <label>Property ID:</label>
-    <select name="property_id" required>
-        <option value="" disabled selected>-- Select property --</option>
-        <?php
-        $conn = new mysqli("localhost", "root", "", "najam_vila_db");
-        if ($conn->connect_error) {
-            echo "<script>alert('Error connecting to database!');</script>";
-        } else {
-            $sql = "SELECT property_id, property_name FROM rental_objects";
-            $result = $conn->query($sql);
-            if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($row['property_id']) . "'>" . htmlspecialchars($row['property_name']) . "</option>";
-                }
+    <div class="form-field">
+        <label>Property ID:</label>
+        <select name="property_id" required>
+            <option value="" disabled selected>-- Select property --</option>
+            <?php
+            $conn = new mysqli("localhost", "root", "", "najam_vila_db");
+            if ($conn->connect_error) {
+                echo "<script>alert('Error connecting to database!');</script>";
             } else {
-                echo "<option value=''>No available objects</option>";
+                $sql = "SELECT property_id, property_name FROM rental_objects";
+                $result = $conn->query($sql);
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<option value='" . htmlspecialchars($row['property_id']) . "'>" . htmlspecialchars($row['property_name']) . "</option>";
+                    }
+                } else {
+                    echo "<option value=''>No available objects</option>";
+                }
+                $conn->close();
             }
-            $conn->close();
-        }
-        ?>
-    </select>
+            ?>
+        </select>
+    </div>
 
-    <button type="submit" name="add_reservation_submit">Add reservation</button>
-    <button type="submit" name="update_reservation_submit" style="display: none;"></button>
-    <button type="reset">Cancel</button>
+    <div class="form-field full">
+        <label>Special requests:</label>
+        <textarea name="special_requests" rows="4" cols="50"></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" name="add_reservation_submit">Add reservation</button>
+        <button type="submit" name="update_reservation_submit" style="display: none;">Update reservation</button>
+        <button type="reset">Cancel</button>
+    </div>
 </form>
 
 <script>
@@ -151,50 +178,7 @@
         });
     }
 
-    document.querySelector('#reservations_form').addEventListener('submit', function(e) {
-        // e.preventDefault(); // prevent auto reload
 
-        const formData = new FormData(this);
-        console.log("✅ Reload prevented. Data to submit:");
-
-        formData.forEach((value, key) => {
-            console.log(`${key} = ${value} (type: ${typeof value})`);
-        });
-
-        let valid = true;
-        let missingFields = [];
-
-        this.querySelectorAll('input, select, textarea').forEach(e1 => {
-            e1.style.border = ""; // reset style
-        });
-
-        this.querySelectorAll('[required]').forEach(e1 => {
-            if (!e1.value || e1.value.trim() === "") {
-                valid = false;
-                missingFields.push(e1.previousElementSibling?.innerText || e1.name || 'field');
-                e1.style.border = "2px solid red"; // mark required fields
-            }
-        });
-
-        if (!valid) {
-            e.preventDefault(); // prevent submit if required fields missing
-            alert("Please fill all fields!\nMissing: " + missingFields.join(', '));
-            return false;
-        }
-
-        // Validate arrival_date <= departure_date
-        if (arrivalInput && departureInput && arrivalInput.value && departureInput.value) {
-            const a = new Date(arrivalInput.value);
-            const d = new Date(departureInput.value);
-            if (a > d) {
-                alert('Arrival date cannot be later than departure date.');
-                return false;
-            }
-        }
-
-        // Ako je sve valjano, pošalji formu (omogući PHP obradu iznad)
-        this.submit();
-    });
 </script>
 <?php
     return ob_get_clean();

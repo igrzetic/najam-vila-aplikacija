@@ -183,6 +183,61 @@ if (!$is_admin) {
         updateUI();
       })();
     </script>
+
+    <!-- Reservations screen: form + table -->
+     <section id="reservations" class="glass-login users-screen" aria-label="Reservations">
+        <button id="toggle-reservations-table" type="button" class="btn-toggle-table" aria-expanded="false">Show Table</button>
+        <a id="logout-floating" class="btn-toggle-table btn-logout" href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>">Log out</a>
+        <div class="background" aria-hidden="true">
+          <div class="shape"></div>
+          <div class="shape"></div>
+        </div>
+        <div class="users-layout">
+          <div class="glass-form">
+            <?php
+              $reservations_form_path = get_stylesheet_directory() . '/custom/reservation_functions/reservations-form.php';
+              if ( file_exists( $reservations_form_path ) ) {
+                $reservations_form_html = include $reservations_form_path; // file returns ob_get_clean()
+                echo $reservations_form_html;
+              } else {
+                echo '<p>reservations-form.php not found.</p>';
+              }
+            ?>
+          </div>
+
+          <div class="users-table">
+            <div class="table-scroll">
+              <?php
+                $reservations_table_path = get_stylesheet_directory() . '/custom/reservation_functions/reservations-table.php';
+                if ( file_exists( $reservations_table_path ) ) {
+                  $reservations_table_html = include $reservations_table_path; // file returns ob_get_clean()
+                  echo $reservations_table_html;
+                } else {
+                  echo '<p>reservations-table.php not found.</p>';
+                }
+              ?>
+            </div>
+          </div>
+        </div>
+      </div>
+     </section>
+     <script>
+      (function () {
+        const btn = document.getElementById('toggle-reservations-table');
+        const section = document.querySelector('#reservations.glass-login.users-screen');
+        if (!btn || !section) return;
+        const isShown = () => section.classList.contains('show-table');
+        const updateUI = () => {
+          btn.textContent = isShown() ? 'Hide Table' : 'Show Table';
+          btn.setAttribute('aria-expanded', String(isShown()));
+        };
+        btn.addEventListener('click', () => {
+          section.classList.toggle('show-table');
+          updateUI();
+        });
+        updateUI();
+      })();
+    </script>
   </main>
   <?php wp_footer(); ?>
 </body>

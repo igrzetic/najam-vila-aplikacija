@@ -73,7 +73,13 @@ if (!$is_admin) {
         <div class="shape"></div>
       </div>
       <div class="users-layout">
-        <form id="users_form" class="glass-form" action="<?php echo esc_url( get_stylesheet_directory_uri() . '/custom/user_functions/add-user-form.php' ); ?>" method="post" novalidate>
+        <?php
+          if (isset($_SESSION['user_message'])) {
+            echo "<script>alert('" . $_SESSION['user_message'] . "');</script>";
+            unset($_SESSION['user_message']);
+          }
+        ?>
+        <form id="users_form" class="glass-form" action="<?php echo esc_url( get_stylesheet_directory_uri() . '/custom/user_functions/handle-add-user.php' ); ?>" method="post" novalidate>
           <h2>Add User</h2>
 
         <label for="gl-username">Username</label>

@@ -1,0 +1,44 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Composer
+vendor/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.*
+
+# Sass/Maps
+.sass-cache/
+*.map
+
+# WordPress (common)
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/ai-builder/
+wp-content/advanced-cache.php
+wp-content/object-cache.php
+wp-content/wp-cache-config.php
+wp-content/mu-plugins/
+
+# Local config (avoid committing secrets)
+wp-config.php
+
+# Misc
+coverage/

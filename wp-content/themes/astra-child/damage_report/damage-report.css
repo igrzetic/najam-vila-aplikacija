@@ -1,0 +1,72 @@
+/* Scoped styles for damage report form */
+#damage-report-form {
+  /* rely on theme for container */
+}
+
+#damage-report-form label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: 600;
+}
+
+#damage-report-form select,
+#damage-report-form textarea,
+#damage-report-form input[type="text"] {
+  width: 100%;
+}
+
+/* File input wrapper */
+#damage-report-form .dr-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+  position: relative;
+}
+
+/* Visually hide the native input but keep it accessible */
+#damage-report-form .dr-file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+/* Button-like label */
+#damage-report-form .dr-file-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #1e90ff; /* match submit button tone */
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.05s ease, background 0.2s ease;
+}
+#damage-report-form .dr-file-btn:hover { background: #0f7ae5; }
+#damage-report-form .dr-file-btn:active { transform: translateY(1px); }
+
+/* Selected files text */
+#damage-report-form .dr-file-info {
+  color: #e8eefc; /* light, high-contrast on dark bg */
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+/* Helper text */
+#damage-report-form .dr-help {
+  margin: 2px 0 14px;
+  font-size: 0.9rem;
+  color: #dfe7fb;
+}
+
+/* Extra spacing before submit */
+#damage-report-form button[type="submit"] {
+  margin-top: 6px;
+}

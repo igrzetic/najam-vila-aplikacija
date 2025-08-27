@@ -1,16 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const addItemBtn = document.getElementById("add-item");
-  const itemName = document.getElementById("item-name");
-  const itemQty = document.getElementById("item-quantity");
-  const itemPrice = document.getElementById("item-price");
-  const itemsList = document.getElementById("items-list");
-  const totalItems = document.getElementById("total-items");
-  const totalPrice = document.getElementById("total-price");
-  const listNameInput = document.getElementById("list-name");
-  const listDescInput = document.getElementById("list-description");
-  const propertyIdEl = document.getElementById("property-id");
-  const propertySelectEl = document.getElementById("property-select");
-  const propertyIdNewEl = document.getElementById("property_id"); // new select id
+  const form = document.getElementById("shopping-list-form");
+  if (!form) return;
+  const addItemBtn = form.querySelector("#add-item");
+  const itemName = form.querySelector("#item-name");
+  const itemQty = form.querySelector("#item-quantity");
+  const itemPrice = form.querySelector("#item-price");
+  const itemsList = form.querySelector("#items-list");
+  const totalItems = form.querySelector("#total-items");
+  const totalPrice = form.querySelector("#total-price");
+  const listNameInput = form.querySelector("#list-name");
+  const listDescInput = form.querySelector("#list-description");
+  const propertyIdEl = form.querySelector("#property-id");
+  const propertySelectEl = form.querySelector("#property-select");
+  const propertyIdNewEl = form.querySelector("#property_id"); // new select id
   function getPropertyId() {
     if (propertyIdEl) {
       const v = parseInt(propertyIdEl.value, 10);
@@ -61,27 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const li = document.createElement("li");
     li.dataset.index = String(index);
 
-    // Kreiranje checkboxa
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("item-checkbox");
-
-    // Kada se klikne checkbox, dodaj ili ukloni klasu "completed" i ažuriraj status u memoriji
-    checkbox.addEventListener("change", () => {
-      const i = parseInt(li.dataset.index, 10);
-      const checked = checkbox.checked;
-      if (checked) {
-        li.classList.add("completed");
-      } else {
-        li.classList.remove("completed");
-      }
-      if (!isNaN(i) && items[i]) {
-        items[i].status = checked ? "purchased" : "pending";
-      }
-    });
-
-    li.appendChild(checkbox); // OVO TREBA UKLONITI
-
     const text = document.createElement("span");
     text.classList.add("item-text");
     text.innerHTML = `${name} <span class="sep">-</span> ${qty} pcs <span class="sep">-</span> ${price.toFixed(2)} €`;
@@ -120,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTotals();
   });
 
-  const form = document.getElementById("shopping-list-form");
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!listNameInput.value.trim()) {
@@ -150,13 +130,27 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (data && data.success) {
-        try { console.log('[ShoppingList] Email recipient:', data.to_email); } catch(e) {}
-        // Optionally show a toast, then redirect to dashboard section
-        alert(`Shopping list saved! ID: ${data.list_id}`);
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (e) {
+        // non-JSON response; treat as success if HTTP status is OK
+      }
+      const isSuccess = (data && (data.success === true || data.status === 'ok')) || res.ok;
+      if (isSuccess) {
+        try { console.log('[ShoppingList] Email recipient:', data && data.to_email); } catch(e) {}
         const dashUrl = (window.ShoppingListConfig && window.ShoppingListConfig.dashboardUrl) || "/index.php/admin-dashboard/#shopping-list";
-        window.location.href = dashUrl;
+        // Unconditionally navigate then force reload to reflect changes
+        try {
+          if (window.location.href !== dashUrl) {
+            window.location.replace(dashUrl);
+          }
+        } finally {
+          // Double-force refresh in case navigation was hash-only
+          setTimeout(() => {
+            try { window.location.reload(); } catch(_) { try { window.history.go(0); } catch(__) {} }
+          }, 50);
+        }
       } else {
         console.error(data);
         alert("Saving failed. See console for details.");

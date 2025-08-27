@@ -56,11 +56,28 @@ $conn->close();
                     fetch('<?php echo get_stylesheet_directory_uri(); ?>/custom/shopping_list/delete-shopping-list.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'list_id=' + listId
+                        cache: 'no-store',
+                        body: 'list_id=' + encodeURIComponent(listId)
                     })
-                    .then(res => res.text())
-                    .then(() => {
-                        window.location.href = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#shopping-list') ); ?>";
+                    .then(function(response){
+                        if (!response.ok) throw new Error('Delete failed with status ' + response.status);
+                        return response.text();
+                    })
+                    .then(function(){
+                        var dashUrl = "<?php echo esc_url( home_url('/index.php/admin-dashboard/#shopping-list') ); ?>";
+                        try {
+                            if (window.location.href !== dashUrl) {
+                                window.location.replace(dashUrl);
+                            }
+                        } finally {
+                            setTimeout(function(){
+                                try { window.location.reload(); } catch(_) { try { window.history.go(0); } catch(__) {} }
+                            }, 50);
+                        }
+                    })
+                    .catch(function(err){
+                        console.error(err);
+                        alert('Delete failed. Please try again.');
                     });
                 }
             });

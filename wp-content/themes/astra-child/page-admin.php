@@ -225,7 +225,6 @@ if (!$is_admin) {
             </div>
           </div>
         </div>
-      </div>
      </section>
      <script>
       (function () {
@@ -239,6 +238,97 @@ if (!$is_admin) {
         };
         btn.addEventListener('click', () => {
           section.classList.toggle('show-table');
+          updateUI();
+        });
+        updateUI();
+      })();
+    </script>
+
+    <!-- Shopping List screen: form + tables + view form toggle -->
+    <section id="shopping-list" class="glass-login users-screen" aria-label="Shopping List">
+      <button id="toggle-shopping-table" type="button" class="btn-toggle-table" aria-expanded="false">Show Tables</button>
+      <button id="toggle-shopping-view-form" type="button" class="btn-toggle-table btn-toggle-form" aria-expanded="false">Show View Form</button>
+      <a class="btn-toggle-table btn-logout" href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>">Log out</a>
+      <div class="background" aria-hidden="true">
+        <div class="shape"></div>
+        <div class="shape"></div>
+      </div>
+      <div class="users-layout">
+        <div class="glass-form">
+          <?php echo do_shortcode('[shopping_list]'); ?>
+        </div>
+        <div class="glass-form view-form" aria-hidden="true" style="display:none;">
+          <?php echo do_shortcode('[view_shopping_list]'); ?>
+        </div>
+
+        <div class="users-table">
+          <div class="table-scroll">
+            <?php
+              $shopping_lists_table_path = get_stylesheet_directory() . '/custom/shopping_list/shopping-list-table.php';
+              if ( file_exists( $shopping_lists_table_path ) ) {
+                $shopping_lists_table_html = include $shopping_lists_table_path; // file returns ob_get_clean()
+                echo $shopping_lists_table_html;
+              } else {
+                echo '<p>shopping-list-table.php not found.</p>';
+              }
+            ?>
+          </div>
+        </div>
+
+        <div class="users-table">
+          <div class="table-scroll">
+            <?php
+              // All shopping list items table (unfiltered)
+              $list_items_table_path = get_stylesheet_directory() . '/custom/shopping_list/list-items-table.php';
+              if ( file_exists( $list_items_table_path ) ) {
+                $list_items_table_html = include $list_items_table_path; // file returns ob_get_clean()
+                echo $list_items_table_html;
+              } else {
+                echo '<p>list-items-table.php not found.</p>';
+              }
+            ?>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      (function () {
+        const btn = document.getElementById('toggle-shopping-table');
+        const section = document.querySelector('#shopping-list.glass-login.users-screen');
+        if (!btn || !section) return;
+        const isShown = () => section.classList.contains('show-table');
+        const updateUI = () => {
+          btn.textContent = isShown() ? 'Hide Tables' : 'Show Tables';
+          btn.setAttribute('aria-expanded', String(isShown()));
+        };
+        btn.addEventListener('click', () => {
+          section.classList.toggle('show-table');
+          updateUI();
+        });
+        updateUI();
+      })();
+      (function () {
+        const btn = document.getElementById('toggle-shopping-view-form');
+        const section = document.querySelector('#shopping-list.glass-login.users-screen');
+        const viewForm = section ? section.querySelector('.glass-form.view-form') : null;
+        if (!btn || !section || !viewForm) return;
+        const isShown = () => section.classList.contains('show-view-form');
+        const apply = () => {
+          if (isShown()) {
+            viewForm.style.display = '';
+            viewForm.setAttribute('aria-hidden', 'false');
+          } else {
+            viewForm.style.display = 'none';
+            viewForm.setAttribute('aria-hidden', 'true');
+          }
+        };
+        const updateUI = () => {
+          btn.textContent = isShown() ? 'Hide View Form' : 'Show View Form';
+          btn.setAttribute('aria-expanded', String(isShown()));
+          apply();
+        };
+        btn.addEventListener('click', () => {
+          section.classList.toggle('show-view-form');
           updateUI();
         });
         updateUI();

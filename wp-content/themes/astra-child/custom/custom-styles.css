@@ -31,12 +31,6 @@ body.custom-admin .glass-login .users-table table.custom-table tbody tr:nth-chil
   background-color: rgba(255, 255, 255, 0.07); /* even subtler zebra */
 }
 
-.user-row.selected,
-.property-row.selected,
-.reservation-row.selected {
-  background-color: #0face1;
-}
-
 /* ------------------------------------------------------------
    Global form styles (match login design)
    ------------------------------------------------------------ */
@@ -100,11 +94,12 @@ input[type="reset"]:hover {
 
 #shopping-list-form, 
 #view-shopping-list-form {
-  max-width: 750px;
-  margin: auto;
-  padding: 30px;
-  border-radius: 18px;
-  background-color: #aaa;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent; /* use parent .glass-form styling */
 }
 
 #shopping-list-form label, 
@@ -119,6 +114,7 @@ input[type="reset"]:hover {
   gap: 20px;
   margin-top: 20px;
   margin-bottom: 50px;
+  align-items: center; /* vertically center inputs and + button */
 }
 
 .item-inputs input {
@@ -126,12 +122,27 @@ input[type="reset"]:hover {
   padding: 5px;
 }
 
+/* In the glass form, inputs get margin-top: 8px; cancel it for this row and equalize height */
+.item-inputs input,
+.item-inputs select {
+  margin-top: 0 !important;
+  height: 44px; /* match #add-item button */
+}
+
 .delete-btn {
-  background: none;
-  padding: 10px;
-  font-size: 30px;
-  width: 40px;
-  height: 40px;
+  background: transparent;
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 22px; /* emoji size */
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
 }
 
 .delete-btn:hover {
@@ -142,39 +153,65 @@ input[type="reset"]:hover {
 }
 
 #add-item {
-  width: 40px;
-  background: none;
+  margin-top: 0 !important;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  box-sizing: border-box;
-  border: 4px solid #1f2937;
-  border-radius: 50%;         /* krug */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  font-weight: bolder;
+  line-height: 1;
+  font-size: 22px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-pill);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
 }
 
 #add-item:hover {
-  background-color: #d4af37;
-  border-color: #d4af37;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  background-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-#items-list {
-  margin-top: 15px;
+/* Active and focus states for icon buttons */
+.delete-btn:hover {
+  background: #e3370e;
+  border-color: #e3370e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.delete-btn:active,
+#add-item:active {
+  transform: translateY(1px);
+}
+.delete-btn:focus-visible,
+#add-item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.55);
+  outline-offset: 2px;
+}
+
+/* Ensure list matches input row width exactly (both forms) */
+#shopping-list-form #items-list,
+#view-shopping-list-form #items-list {
+  display: block;
+  margin: 0;                 /* reset UA margins */
+  margin-top: 15px;          /* spacing from inputs */
   list-style: none;
   padding: 0;
+  width: 100% !important;    /* match full inner width of form */
+  box-sizing: border-box;
 }
 
-#items-list li {
+#shopping-list-form #items-list li,
+#view-shopping-list-form #items-list li {
   display: flex;
-  justify-content: flex-start; /* keep checkbox left; let text push to right */
+  width: 100% !important;
   align-items: center;
-  gap: 30px; /* ensures ~10px between text and checkbox button */
+  gap: 16px;
   padding-bottom: 10px;
   margin-bottom: 15px;
-  border-bottom: 1.5px solid #ddd;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
 }
 
 #items-list li:last-child {
@@ -187,18 +224,26 @@ input[type="reset"]:hover {
 #items-list li.completed .item-text,
 #items-list li.completed .item-text * {
   text-decoration: line-through;
-  color: #555;
+  color: rgba(255, 255, 255, 0.55);
   transition: 0.3s ease;
 }
 
 /* Text occupies remaining space and hugs the delete button on the right */
 .item-text {
-  margin-right : auto; /* pushes text to the left side */
+  flex: 1 1 auto;   /* fill remaining space */
+  min-width: 0;     /* allow wrapping/ellipsis if needed */
+  padding-left: 10px; /* align with glass-form input content (0 10px) */
 }
 
 /* Ensure delete button never inherits line-through */
 .delete-btn {
   text-decoration: none !important;
+}
+
+/* Keep delete button aligned and sized like in tables */
+#items-list .delete-btn {
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .sep {
@@ -213,22 +258,37 @@ input[type="reset"]:hover {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 3px solid #555;
+  border: 3px solid rgba(255, 255, 255, 0.6);
   background: transparent;
   display: inline-grid;
   place-content: center;
+  padding: 0;            /* avoid inherited padding */
+  line-height: 0;        /* prevent inline height quirks */
+  position: relative;    /* anchor pseudo-element */
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .item-checkbox:checked {
-  background-color: #555;
-  border-color: #555;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.85);
 }
-.item-checkbox:checked::after {
+
+.item-checkbox::after {
   content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #555;
+  position: absolute;
+  width: 8px;                /* tick width */
+  height: 12px;               /* tick height */
+  border-right: 3px solid var(--secondary-accent);
+  border-bottom: 3px solid var(--secondary-accent);
+  transform: rotate(45deg);
+  top: 50%;
+  left: 50%;
+  translate: -50% -55%;
+  display: none;              /* hidden by default */
+}
+
+.item-checkbox:checked::after {
+  display: block;             /* show tick when checked */
 }
 
 .totals {
@@ -238,20 +298,33 @@ input[type="reset"]:hover {
   font-weight: bold;
   margin-top: 25px;
   padding-top: 10px;
-  border-top: 3px dashed #ddd;
+  border-top: 3px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* Center action buttons in the View form to match the Create form */
+#view-shopping-list-form #view-list,
+#view-shopping-list-form #update-list {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #save-list, 
 #view-list,
 #update-list {
-  margin-top: 20px;
+  display: block;             /* allow margin auto centering */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 40px;
   padding: 10px 20px;
   cursor: pointer;
   border: none;
-  background-color: #82e600;
-  color: white;
-  border-radius: 18px;
-  font-weight: bold;
+  background-color: #ffffff; /* match .glass-form button */
+  color: #080710;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  width: 60%;              /* exact same width for all */
+  text-align: center;        /* ensure label is centered */
 }
 
 #save-list:hover,
@@ -576,8 +649,8 @@ body.custom-admin .glass-login .glass-form label {
 }
 body.custom-admin .glass-login .glass-form input {
   display: block;
-  height: 50px;
-  width: 100%;
+  /* height: 50px; */
+  /* width: 100%; */
   background-color: rgba(255, 255, 255, 0.07);
   border-radius: 3px;
   padding: 0 10px;
@@ -650,7 +723,7 @@ body.custom-admin .glass-login .glass-form select option {
 body.custom-admin .glass-login .glass-form ::placeholder {
   color: #e5e5e5;
 }
-body.custom-admin .glass-login .glass-form button {
+body.custom-admin .glass-login .glass-form button[type="submit"] {
   margin-top: 50px;
   display: block;
   margin-left: auto;
@@ -690,9 +763,46 @@ body.custom-admin .glass-login.users-screen .btn-logout {
   right: 16px;
 }
 
+
+/* Shopping List toggles: use normal flow and stack with a gap */
+body.custom-admin #shopping-list.glass-login.users-screen .btn-toggle-table:not(.btn-logout) {
+  display: block;
+}
+
+/* Add extra room for two stacked buttons so forms don't sit too close */
+body.custom-admin #shopping-list.glass-login.users-screen {
+  padding-top: 20px; /* smaller now that buttons are in normal flow */
+}
+/* Slightly increase gap below the buttons for a balanced look */
+body.custom-admin #shopping-list.glass-login.users-screen .users-layout {
+  margin-top: 8%; /* more room under the toggles */
+  display: flex;
+  flex-direction: row;           /* place forms side by side */
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;               /* allow wrap if space is tight */
+  gap: 50px;                     /* space between the two forms */
+}
+
+/* Give each shopping list form a reasonable width so two fit on one row */
+body.custom-admin #shopping-list.glass-login.users-screen .glass-form {
+  width: 35%;
+  min-width: 360px;              /* prevent collapsing too narrow */
+}
+
+body.custom-admin #shopping-list.glass-login.users-screen .btn-toggle-form {
+  margin-left: 140px;
+}
+
+#shopping-list-layout
+{
+  display: flex;
+}
+
 .btn-logout:hover {
   opacity: 0.9;
 }
+
 body.custom-admin .glass-login .users-layout {
   display: flex;
   gap: 24px;
@@ -703,7 +813,8 @@ body.custom-admin .glass-login .users-layout {
   width: 100%;
 }
 
-body.custom-admin #reservations .users-layout {
+body.custom-admin #reservations .users-layout
+{
   flex-direction: column;
   align-items: center;
 }
@@ -724,10 +835,42 @@ body.custom-admin #reservations_form .form-field.full {
 /* Actions in a single row, aligned to the right, spanning both columns */
 body.custom-admin #reservations_form .form-actions {
   grid-column: 1 / -1;
-  display: flex;
+  display: grid;                       /* grid for equal columns */
+  grid-template-columns: 1fr 1fr;      /* two equal columns */
   gap: 30px;
-  justify-content: flex-end;
   margin-top: 8px;
+}
+
+/* Make the Cancel button look like the Add button (white pill) */
+body.custom-admin #reservations_form .form-actions button[type="reset"] {
+  background-color: #ffffff;
+  color: #080710;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 20px;
+  font-weight: 600;
+}
+body.custom-admin #reservations_form .form-actions button[type="reset"]:hover {
+  opacity: 0.9;
+}
+
+/* Ensure Add and Cancel look the same in reservations form */
+body.custom-admin #reservations_form .form-actions button[type="submit"],
+body.custom-admin #reservations_form .form-actions button[type="reset"] {
+  margin-top: 0;          /* override glass-form submit top margin */
+  margin-left: auto;         /* cancel global auto-centering */
+  margin-right: auto;        /* cancel global auto-centering */
+  width: 80%;            /* fill their grid cell */
+  background-color: #ffffff;
+  color: #080710;
+  padding: 12px 20px;     /* ensure identical padding */
+  border-radius: var(--radius-pill);
+}
+
+/* Shared hover for both buttons */
+body.custom-admin #reservations_form .form-actions button[type="submit"]:hover,
+body.custom-admin #reservations_form .form-actions button[type="reset"]:hover {
+  opacity: 0.9;
 }
 
 body.custom-admin #reservations .glass-form {
@@ -747,6 +890,7 @@ body.custom-admin .glass-login.users-screen .glass-form {
 body.custom-admin .glass-login.users-screen:not(.show-table) .glass-form {
   margin-left: auto;
   margin-right: auto;
+  width: 35%;
 }
 /* Glass-styled users table card */
 body.custom-admin .glass-login .users-table {
@@ -885,11 +1029,16 @@ body.custom-admin .glass-login.users-screen.show-table .glass-form {
 body.custom-admin #reservations.glass-login.users-screen.show-table .glass-form {
   transform: none;
 }
+/* Do not nudge the form on the shopping list page */
+body.custom-admin #shopping-list.glass-login.users-screen.show-table .glass-form {
+  transform: none;
+}
 body.custom-admin .glass-login.users-screen.show-table .users-table {
   opacity: 1;
   transform: translateX(0);
   visibility: visible;
   pointer-events: auto;
+  width: auto;
   transition: opacity 0.3s ease-in, transform 0.3s ease-out, visibility 0s;
 }
 
@@ -935,10 +1084,7 @@ body.custom-admin #reservations_form h2 {
     grid-template-columns: 1fr;
   }
   body.custom-admin #reservations_form .form-actions {
-    justify-content: stretch;
-    flex-wrap: wrap;
-  }
-  body.custom-admin #reservations_form .form-actions > * {
-    flex: 1 1 auto;
+    grid-template-columns: 1fr; /* stack buttons */
+    gap: 14px;                  /* tighter gap on mobile */
   }
 }
